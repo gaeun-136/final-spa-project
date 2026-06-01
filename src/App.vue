@@ -1,85 +1,37 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { useFavoritesStore } from './stores/favorites.js';
+const favoritesStore = useFavoritesStore();
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+  <div class="app-container">
+    <header class="navbar">
+      <div class="logo">🍿 SPA Movie</div>
+      <nav class="links">
+        <router-link to="/">홈(Home)</router-link>
+        <router-link to="/movies">영화 목록(Movies)</router-link>
+        <div class="favorite-stats">
+          <span class="badge count-badge">❤️ 찜: {{ favoritesStore.totalFavorites }}개</span>
+          <span v-if="favoritesStore.averageRating > 0" class="badge rating-badge">
+            ⭐ 평균 평점: {{ favoritesStore.averageRating }}
+          </span>
+        </div>
       </nav>
-    </div>
-  </header>
-
-  <RouterView />
+    </header>
+    <router-view></router-view>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
+.app-container { font-family: sans-serif; }
+.navbar { display: flex; justify-content: space-between; align-items: center;
+padding: 20px 40px; background-color: #2c3e50; color: white; }
+.logo { font-size: 24px; font-weight: bold; }
+.links { display: flex; gap: 20px; align-items: center; }
+.links a { color: #a1b1c1; text-decoration: none; font-weight: bold; font-size: 18px; }
+.links a.router-link-active { color: #42b883; text-decoration: underline; }
+.favorite-stats { display: flex; gap: 10px; margin-left: 20px; }
+.badge { padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+.count-badge { background-color: #ff4757; color: white; }
+.rating-badge { background-color: #f1c40f; color: #333 }
 </style>
