@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted, computed, watch } from 'vue';
+import { onMounted, computed, watch, ref } from 'vue'; // 💡 ref를 추가했습니다.
 import { useRoute, useRouter } from 'vue-router';
 import { useMovieStore } from '../stores/movieStore';
+import axios from 'axios';
 
 const route = useRoute(); //💼 useRoute 주소창 파라미터 추출용
 const router = useRouter(); // ✈️ useRouter 뒤로가기 
@@ -24,12 +25,57 @@ const formattedRevenue = computed(() => {
 
 watch(() => store.selectedMovie, (newMovie) => {
     if (newMovie && newMovie.title) {
-        document.title = '${newMovie.title} | NETVUE 상세정보';
+        // 💡 템플릿 리터럴 백틱(`)으로 수정하여 제목이 정상적으로 나오도록 변경했습니다.
+        document.title = `${newMovie.title} | NETVUE 상세정보`;
     }
 }, { immediate: true });
 
 const goBack = () => {
     router.back(); // 브라우저 히스토리 스택을 되돌려 목록 스크롤 위치 보존
+};
+
+// AI 기능 관련 상태 정의
+const aiReview = ref('');
+const isAiLoading = ref(false);
+
+// 💡 꼬여있던 중괄호 구조와 변수 범위를 올바르게 합쳤습니다.
+const generateAIReview = async () => {
+    if (!store.selectedMovie) return;
+    
+    isAiLoading.value = true;
+    aiReview.value = '';
+
+    const promptMessage = `
+        너는 영화 평론 유튜버야. 아래 영화 데이터를 기반으로 블로그 글처럼
+        2~3문단 분량의 상세하고 흡입력 있는 추천평을 작성해줘(이모지 필수).
+        제목: "${store.selectedMovie.title}",
+        장르: ${store.selectedMovie.genres?.map(g => g.name).join(',') || '정보 없음'},
+        평점: ${store.selectedMovie.vote_average?.toFixed(1) || '0.0'}점
+    `;
+
+    try {
+        const response = await axios.post(
+            'https://api.groq.com/openai/v1/chat/completions',
+            {
+                model: 'llama-3.1-8b-instant',
+                messages: [{ role: 'user', content: promptMessage }]
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${import.meta.env.VITE_AI_API_KEY}`
+                }
+            }
+        );
+
+        aiReview.value = response.data.choices[0].message.content;
+
+    } catch (error) {
+        console.error("AI 호출 에러:", error);
+        aiReview.value = "서버가 혼잡합니다. 잠시 후 다시 시도해 주세요. 😥";
+    } finally {
+        isAiLoading.value = false;
+    }
 };
 </script>
 
@@ -169,5 +215,21 @@ const goBack = () => {
     .poster-zone { width: 280px; }
     .movie-main-title { font-size: 38px; text-align: center; }
     .tagline { text-align: center; border-left: none; }
+}
+.divider {
+  border: 0; height: 1px; background: rgba(255, 255, 255, 0.2); margin: 30px 0;
+}
+.ai-section {
+  margin: 30px 0; padding: 20px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.ai-btn {
+  background: linear-gradient(45deg, #8a2be2, #4b0082);
+  color: white; border: none; padding: 12px 20px; font-size: 16px;
+  font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%;
+}
+.ai-result-box {
+  margin-top: 15px; padding: 15px; background: #222;
+  border-left: 4px solid #8a2be2; color: #fff; line-height: 1.6;
 }
 </style>
