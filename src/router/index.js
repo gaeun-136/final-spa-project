@@ -18,7 +18,7 @@ const router = createRouter({
       component: MoviesView // 이 주소로 오면 MoviesView 컴포넌트를 띄워라!
     },
     {
-      path: 'movies/:id',
+      path: '/movies/:id',
       name: 'movie-detail',
       component: MovieDetailView,
     },
