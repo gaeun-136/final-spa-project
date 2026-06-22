@@ -15,8 +15,8 @@ export const useMovieStore = defineStore('movie', () => {
     const selectedMovie = ref(null);
 
     // [3] Actions: 외부 서버 통신 함수 (async/await 적용)
-    const fatchMovies = async () => {
-        isLoading.value = true();
+    const fetchMovies = async () => {
+        isLoading.value = true;
         errorMessage.value = '';
 
         try {
@@ -46,7 +46,7 @@ export const useMovieStore = defineStore('movie', () => {
                 movie.isFavorite = isAlreadyFavorite;
             });
 
-            movie.value = fetchedMovies;
+            movies.value = fetchedMovies;
         }   catch (error) {
             console.error('API 통신 에러 상세 내역:', error);
             errorMessage.value = '영화 데이터를 불러오는 데 실패했습니다. 통신 상태나 API Key를 확인해 주세요.';
@@ -63,7 +63,7 @@ export const useMovieStore = defineStore('movie', () => {
 
         try {
             const API_KEY = '2e6b6b8cf15203bf9eb89ce188e04d31';
-            const url = 'https://api.themoviedb.org/3/movie/${movieId}' ;
+            const url = `https://api.themoviedb.org/3/movie/${movieId}` ;
 
             const response = await axios.get(url, {
                 params: {
